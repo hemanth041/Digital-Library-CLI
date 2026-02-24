@@ -22,6 +22,18 @@ public class Book{
     public String toString(){
         return Title + "by" + Author +"(ISBN:"+isbn+ ")-"+(isAvailable?"Available":"Borrowed");
     }
+    public Book(String lineFromFile) {
+    String[] parts = lineFromFile.split("\\|"); 
+    this.Title = parts[0];
+    this.Author = parts[1];
+    this.isbn = parts[2];
+    this.Year = Integer.parseInt(parts[3]);
+    this.isAvailable = Boolean.parseBoolean(parts[4]);
+}
+
+public String toFileString() {
+    return Title + "|" + Author + "|" + isbn + "|" + Year + "|" + isAvailable;
+}
 }
 
 

@@ -1,13 +1,17 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.*;
 class LibraryManager{
     private ArrayList<Book> books=new ArrayList<>();
     private Scanner sc=new Scanner(System.in);
+    private static final String DATA_FILE = "library_data.txt";
     public static void main(String[] args){
         LibraryManager manager=new LibraryManager();
         manager.run();
+
     }
     public void run(){
+        loadFromFile();
         while(true){
             System.out.println("\n=== Digital Library Menu ===");
             System.out.println("1. Add a Book");
@@ -32,11 +36,55 @@ class LibraryManager{
                     returnBook();
                     break;
                 case 5:
+                    saveToFile();
                     System.out.println("GoodBye!");
                     System.exit(0);
                 default:
                     System.out.println("Invalid option. Try again.");
             }
+        }
+    }
+    private void saveToFile(){
+         try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_FILE))) {
+            for (Book book : books) {
+                writer.write(book.toFileString());
+                writer.newLine(); // Add a new line after each book
+            }
+            System.out.println("✓ Saved " + books.size() + " books to file.");
+        } catch (IOException e) {
+            System.out.println("❌ Error saving to file: " + e.getMessage());
+        }
+    }
+    private void loadFromFile() {
+        File file = new File(DATA_FILE);
+        
+        // Check if file exists (first time running, it won't)
+        if (!file.exists()) {
+            System.out.println("No existing library data found. Starting fresh.");
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            int count = 0;
+            
+            while ((line = reader.readLine()) != null) {
+                // Skip empty lines
+                if (line.trim().isEmpty()) continue;
+                
+                try {
+                    Book book = new Book(line); // Use our new constructor
+                    books.add(book);
+                    count++;
+                } catch (Exception e) {
+                    System.out.println("⚠ Skipping corrupted line: " + line);
+                }
+            }
+            
+            System.out.println("✓ Loaded " + count + " books from previous session.");
+            
+        } catch (IOException e) {
+            System.out.println("❌ Error loading from file: " + e.getMessage());
         }
     }
       private void addBook() {
